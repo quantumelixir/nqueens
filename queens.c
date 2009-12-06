@@ -2,28 +2,51 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define check_col(J) (!(colmask & (1<<(J))))
-#define place(I,J)   board[(I)] |= (1<<(J)); colmask |= (1<<(J)); placed++;
-#define unplace(I,J) board[(I)] ^= (1<<(J)); colmask ^= (1<<(J)); placed--;
+/*
+ * N (m,n) Queens Problem:
+ * Placing N queens (chess pieces) on an mxn board so that
+ * no queen threatens another.
+ *
+ * Limits:
+ * m, n are constrained to within 32
+ * When the board is m x n in size
+ * colmask must be at least n bits wide
+ * diagmasks at least m + n - 1 bits wide
+ */
 
-int board[32];
-int N, m, n;
-int colmask;
-int placed;
+#define check_col(J) (!(colmask & (1<<(J))))
+#define check_diag_a(I, J) (!(diagmask_a & (1<<((I) - (J) + n - 1))))
+#define check_diag_b(I, J) (!(diagmask_b & (1<<((I) + (J)))))
+#define place(I,J)   board[(I)] |= (1<<(J)); colmask |= (1<<(J)); \
+        diagmask_a |= 1<<((I) - (J) + n - 1); diagmask_b |= (1<<((I) + (J))); placed++
+#define unplace(I,J) board[(I)] ^= (1<<(J)); colmask ^= (1<<(J)); \
+        diagmask_a ^= 1<<((I) - (J) + n - 1); diagmask_b ^= (1<<((I) + (J))); placed--
+
+typedef unsigned int uint;
+typedef unsigned long ulong;
+
+uint board[32];
+uint N, m, n;
+uint colmask;
+ulong diagmask_a;
+ulong diagmask_b;
+uint placed;
 
 void
-init (int queens, int rows, int cols) {
+init (uint queens, uint rows, uint cols) {
     N = queens;
     m = rows;
     n = cols;
     colmask = 0;
+    diagmask_a = 0;
+    diagmask_b = 0;
     placed = 0;
     memset (board, 0, sizeof (board));
 }
 
 void
 pretty_print () {
-    int i, j;
+    uint i, j;
     static char header[1024] = "";
     for ( i = 0; i < m; ++i ) {
         // print header
@@ -45,31 +68,15 @@ pretty_print () {
 
 void
 state_print () {
-    int i;
+    uint i;
     for ( i = 0; i < m; ++i )
         printf ("%d:", board[i]);
     printf ("\n");
 }
 
-/*
- * Checks along diagonals (from rows 0 to i)
- * for empty squares (non-queens)
- */
-int
-check_diag (int i, int j) {
-    int p, q, k;
-    for ( k = 0; k < i; ++k ) {
-        p = j - i + k;
-        q = j + i - k;
-        if ((p >= 0 && (board[k] & (1<<p))) ||
-            (q < n && (board[k] & (1<<q)))) return 0;
-    }
-    return 1;
-}
-
-unsigned int
-backtrack (int i) {
-    int ret = 0, j, t;
+uint
+backtrack (uint i) {
+    uint ret = 0, j, t;
     // if N queens have been placed
     if (placed == N) { 
         state_print ();
@@ -79,7 +86,7 @@ backtrack (int i) {
     // else try placing a queen in row "t" beginning with row "i"
     for ( t = i; m - t >= N - placed ; t++ ) {
         for ( j = 0; j < n; ++j ) {
-            if (check_col (j) && check_diag (t, j)) { 
+            if (check_col (j) && check_diag_a (t, j) && check_diag_b (t, j)) {
                 place (t, j);
                 ret += backtrack (t + 1);
                 unplace (t, j);
@@ -105,7 +112,7 @@ main (int argc, char **argv) {
     // ...
     // 000...00000000000 //unused
 
-    int a, b, c;
+    uint a, b, c;
     switch (argc) {
         case 1 :
             init (8, 8, 8);

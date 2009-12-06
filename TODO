@@ -1,4 +1,4 @@
 Use solution symmetry to halve execution time
 Thread I/O
 Parallelize recursion
-Used diagnoal tracking using bitmasks
+DONE Used diagnoal tracking using bitmasks
