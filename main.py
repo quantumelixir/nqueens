@@ -2,6 +2,8 @@ from sys import argv
 import psyco
 psyco.full()
 
+colmask = 0
+
 def print_board(b):
     for i in b:
         print '%s%s' % ('+---' * len(b[0]), '+')
@@ -20,7 +22,8 @@ def queen_count(b):
 # only checks for column and diag consistency
 # (since row consistency is ensured by try_backtrack)
 def is_valid(board, i, j):
-    if sum(zip(*board)[j]):
+    global colmask
+    if colmask & (1<<j):
         return False
     l = len(board)
     for k in range(i):
@@ -42,8 +45,11 @@ def try_backtrack(board, placed = 0, prev = -2):
         if j == prev - 1 or j == prev or j == prev + 1 :
             continue
         if is_valid(board, placed, j):
+            global colmask
             board[placed][j] = 1
+            colmask |= (1<<j)
             ret = ret + try_backtrack(board, placed + 1, j)
+            colmask ^= (1<<j)
             board[placed][j] = 0
     return ret
 
