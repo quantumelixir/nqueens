@@ -28,8 +28,8 @@ def is_valid(board, i, j):
         if (-1 < m < l and board[k][m]) or (-1 < n < l and board[k][n]):
             return False
     return True
-    
-def try_backtrack(board, placed = 0):
+
+def try_backtrack(board, placed = 0, prev = -2):
 
     l = len(board)
     if placed == l:
@@ -39,9 +39,11 @@ def try_backtrack(board, placed = 0):
     #place a queen in row = placed
     ret = 0
     for j in range(l):
+        if j == prev - 1 or j == prev or j == prev + 1 :
+            continue
         if is_valid(board, placed, j):
             board[placed][j] = 1
-            ret = ret + try_backtrack(board, placed + 1)
+            ret = ret + try_backtrack(board, placed + 1, j)
             board[placed][j] = 0
     return ret
 
