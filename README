@@ -1,8 +1,15 @@
-Multi-Dimensional N-Queens Solver
+Generalized N-Queens (N queens on a mxn board in d dimensions) solver
 
 chillu
 Date: Friday December,  4 2009
 Time: 12:02:27 PM IST 
+
+****************
+Progress so far:
+****************
+-> Using bitmasks for computation
+-> Almost general: Solves for d = 2 completely for all (N, m, n)
+-> Pretty fast: Q(N=m=n=14) in about 5 seconds
 
 ********
 Problem:
