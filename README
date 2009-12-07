@@ -1,0 +1,105 @@
+Multi-Dimensional N-Queens Solver
+
+chillu
+Date: Friday December,  4 2009
+Time: 12:02:27 PM IST 
+
+********
+Problem:
+********
+    Enumerate all possible solutions (states) where N^(d-1) queens are
+    placed such that no two are adjacent (in d dimensional space) in a
+    d-dimensional hypercube (N x N x ... x N)
+
+**********
+Adjacency:
+**********
+    To understand what it means for queens to be adjacent in d-dimensional
+    space you must first understand what it means for queens to be adjacent
+    in d-1 dimensional space.
+
+    ... (I'll wait till your brain recurses and bottoms out at 2 dimensions)
+
+    In two dimensions, if a queen's location were specified by
+
+                        P = (pi, pj)
+
+    then the queen is capable of moving to locations :
+
+                P' = (pi + di * t, pj + dj * t)
+
+    where di and dj take values from {-1, 0, 1} and t is any integer
+    provided the resulting P' is within the bounds of the N x N grid.
+    Thus the direction vectors for movement are :
+
+                    D = (P' - P)/|P' - P|
+                        D = (di, dj)
+
+    Thus we have 3 x 3 - 1 (excluding the invalid direction (0, 0)
+    which does not denote movement) = 8 directions
+
+    Extending the idea to three dimensions,
+
+                        P  = (pi, pj, pk)
+        P' = (pi + di * t, pj + dj * t, pt + dk * t)
+                        D = (di, dj, dk)
+
+    where di, dj, dk and t have their usual meanings, for a total
+    of 26 possible directions in 3 dimensions and 80 (3^4 - 1) possible
+    directions in 4 dimensional space.
+
+    ... (Slowly unwind the call stack in your brain)
+
+    In general => 3^d - 1 directions to check for in d dimensional space
+
+
+***********
+Assemblage:
+***********
+    A 3-dimensional solution is an assemblage of stacked 2-d solutions.
+    A 4-d solutions is a set of 3-d solutions stacked along the 4-th
+    dimension. This is true in general for any dimension. => Recurse!
+
+    We don't want to recalculate the simpler solutions => Solve and store
+    the 2-d solutions in a file. Use them to construct larger solutions.
+
+**********
+Structure:
+**********
+    Solutions have structure, symmetry, etc.
+    How will you take advantage of these?
+
+***************
+Implementation:
+***************
+    Algorithm -> Recursive backtracking
+    Solution states:
+        A line (32 bits) stores a single HIGH bit for a queen in that row.
+        The one-dimensional bitmask (line) is the basic unit.
+        2-d solution = N lines
+        3-d solution = NxN lines
+        ...
+
+    NOTE:
+    Choosing a line to be 32 bits wide limits N to 32
+    May even consider short ints that are only 16 bits wide
+    to be cache friendly
+
+*********
+Notation:
+*********
+    2-d solutions are stored as:
+    <2-index>:<solution>
+    where <solution> is a set of N "lines" (32-bit integers) and <2-index>
+    is the id given to the solution based on when it was encountered during
+    backtracking.
+
+    Higher dimensional solutions:
+    <d-index>:<solution>
+    where <solution> is a set of N "(d-1)-indices".
+
+***********
+Variations:
+***********
+    * Easier problem of placing k (<= N^(d-1)) queens. But this destroys
+      the progression from one dimension to another. (Assemblage)
